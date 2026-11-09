@@ -41,8 +41,7 @@
       <div class="title"><span class="status-dot"></span> Local ESP32 AI Assistant</div>
     </div>
     <div class="config-group">
-      <!-- URL ท่อ Ngrok ที่แมปไว้ให้อัตโนมัติ -->
-      <input type="text" id="tunnel-url" value="https://unburned-affected-ninth.ngrok-free.dev " placeholder="https://xxx.ngrok-free.dev">
+      <input type="text" id="tunnel-url" value="https://jessica-sandra-nil-diff.trycloudflare.com" placeholder="https://xxx.trycloudflare.com">
       <select id="model-select">
         <option value="qwen2.5-coder:3b">Qwen 2.5 Coder 3B</option>
         <option value="qwen2.5:3b">Qwen 2.5 3B</option>
@@ -52,7 +51,7 @@
   </header>
 
   <div id="chat-box">
-    <div class="sys-msg">เชื่อมต่อกับ Ollama ผ่าน Ngrok พร้อมใช้งานแล้วครับ</div>
+    <div class="sys-msg">เชื่อมต่อกับ Ollama ผ่าน Cloudflare Tunnel พร้อมใช้งานแล้วครับ</div>
   </div>
 
   <footer>
@@ -80,7 +79,7 @@
 
       if (!text) return;
       if (!baseUrl) {
-        alert('กรุณากรอก Ngrok URL');
+        alert('กรุณากรอก Tunnel URL');
         return;
       }
 
@@ -97,7 +96,8 @@
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'ngrok-skip-browser-warning': 'true'
+            'ngrok-skip-browser-warning': 'true',
+            'bypass-tunnel-reminder': 'true'
           },
           body: JSON.stringify({
             model: modelSelect.value,
@@ -110,13 +110,12 @@
 
         const data = await response.json();
         
-        // แปลงข้อความบล็อกโค้ดแบบง่าย
         let formattedResponse = data.response.trim();
         formattedResponse = formattedResponse.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
         
         botMsgDiv.innerHTML = formattedResponse;
       } catch (err) {
-        botMsgDiv.innerText = `❌ ข้อผิดพลาด: ${err.message}\n(โปรดตรวจสอบว่าได้รัน ngrok http 11434 --host-header="localhost:11434" แล้วหรือยัง)`;
+        botMsgDiv.innerText = `❌ ข้อผิดพลาด: ${err.message}\n(โปรดตรวจสอบว่าได้เปิด cloudflared.exe tunnel --url http://localhost:11434 --http-host-header "localhost:11434" แล้วหรือยัง)`;
         botMsgDiv.style.color = '#ef4444';
       } finally {
         sendBtn.disabled = false;
@@ -125,12 +124,13 @@
     }
 
     function appendMessage(text, className) {
-      const msg = document.createElement('div');
-      msg.className = `msg ${className}`;
-      msg.innerText = text;
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return msg;
+      const msg = document.getElementById('chat-box');
+      const elem = document.createElement('div');
+      elem.className = `msg ${className}`;
+      elem.innerText = text;
+      msg.appendChild(elem);
+      msg.scrollTop = msg.scrollHeight;
+      return elem;
     }
   </script>
 
